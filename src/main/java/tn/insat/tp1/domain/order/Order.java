@@ -1,20 +1,16 @@
 package tn.insat.tp1.domain.order;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 /** Sujet synchrone ; ne depend d'aucun service concret. */
-public final class Order implements Subject {
+public class Order implements Subject {
     private String status = "CREATED";
-    private final Set<Observer> observers = new LinkedHashSet<>();
-
-    public String getStatus() { return status; }
+    private final List<Observer> observers = new ArrayList<>();
 
     @Override
     public void attach(Observer observer) {
-        observers.add(Objects.requireNonNull(observer, "observer"));
+        observers.add(observer);
     }
 
     @Override
@@ -22,20 +18,13 @@ public final class Order implements Subject {
 
     @Override
     public void notifyObservers() {
-        String currentStatus = status;
-        // Un observateur peut se desabonner pendant son propre rappel.
-        for (Observer observer : List.copyOf(observers)) {
-            observer.update(currentStatus);
+        for (Observer observer : observers) {
+            observer.update(status);
         }
     }
 
     public void setStatus(String status) {
-        if (status == null || status.isBlank()) {
-            throw new IllegalArgumentException("Order status must not be blank");
-        }
-        if (!this.status.equals(status)) {
-            this.status = status;
-            notifyObservers();
-        }
+        this.status = status;
+        notifyObservers();
     }
 }

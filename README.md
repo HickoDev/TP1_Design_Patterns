@@ -8,6 +8,8 @@ Application Java pédagogique de boutique en ligne : création de produits, conf
 
 Ce dépôt contient les sources Java de l'application et des tests, ainsi que ce README. Il ne nécessite aucun framework ni bibliothèque externe.
 
+Les classes suivent les exemples « après » du compte rendu. Les packages, le point d'entrée et les tests permettent de compiler et d'exécuter l'ensemble. Les getters/setters de configuration mentionnés dans le sujet sont conservés. La feuille du catalogue s'appelle `CatalogProduct`, comme expliqué dans le rapport, pour la distinguer de l'interface `Product` de la Factory.
+
 ## Prérequis
 
 Installer un **JDK 17 ou supérieur**, puis ouvrir un terminal à la racine du projet. Vérifier que les deux commandes suivantes utilisent une version 17 ou supérieure :
@@ -42,7 +44,7 @@ java -cp build/classes tn.insat.tp1.presentation.Main
 java -cp "build/classes;build/test-classes" tn.insat.tp1.PatternTests
 ```
 
-Résultat attendu des tests : **`Tests: 15 passed, 0 failed.`** Un échec affiche `[FAIL]`, le détail de l'erreur et produit un code de sortie non nul. Après avoir modifié une source, relancer les commandes de compilation avant les démonstrations ou les tests.
+Résultat attendu des tests : **`Tests: 11 passed, 0 failed.`** Un échec affiche `[FAIL]`, le détail de l'erreur et produit un code de sortie non nul. Après avoir modifié une source, relancer les commandes de compilation avant les démonstrations ou les tests.
 
 ## Compiler sous Linux / macOS
 
@@ -76,11 +78,11 @@ Remplacer `2` par un numéro de `3` à `7`. Sans argument, ou avec `all`, toutes
 | Partie | Pattern / sujet | Résultat attendu de la démonstration | Tests |
 | --- | --- | --- | --- |
 | 1 | Analyse du code initial | Expliquer le couplage, les responsabilités mélangées, les conditions répétées et l'OCP. | Analyse écrite |
-| 2 | Factory | Création de Book, Electronic, Clothing et Food ; `Food: Pasta - 12.0`. | 4 |
-| 3 | Singleton | `Same instance: true`. | 1 |
-| 4 | Adapter | `Payment : 250.0`. | 2 |
-| 5 | Composite | Catalogue avec catégories et produits indentés. | 2 |
-| 6 | Observer | État initial `CREATED`, puis Email, Stock et Logger reçoivent `SHIPPED`. | 4 |
+| 2 | Factory | Création de Book, Electronic, Clothing et Food ; `Order created` puis l'affichage du produit. | 3 |
+| 3 | Singleton | `true`, résultat de `c1 == c2`. | 1 |
+| 4 | Adapter | `Payment : 250.0`. | 1 |
+| 5 | Composite | Catalogue avec catégories et produits indentés. | 1 |
+| 6 | Observer | Email, Stock et Logger reçoivent `SHIPPED` après le passage depuis `CREATED`. | 3 |
 | 7 | Strategy | Messages Email, SMS, Push Notification et WhatsApp. | 2 |
 | 8 | Architecture | Justifier les couches, la place des classes et le sens des dépendances. | Analyse écrite |
 
@@ -96,7 +98,7 @@ src/main/java/tn/insat/tp1/
   application/                      OrderService, ProductFactory, NotificationService
     port/                           PaymentService, Notification
   domain/
-    product/                        Product, AbstractProduct, Book, Electronic, Clothing, Food
+    product/                        Product, Book, Electronic, Clothing, Food
     catalog/                        CatalogComponent, CatalogProduct, Category
     order/                          Order, Subject, Observer
   infrastructure/
@@ -106,7 +108,7 @@ src/main/java/tn/insat/tp1/
     notification/                   EmailNotification, SmsNotification,
                                     PushNotification, WhatsAppNotification
 src/test/java/tn/insat/tp1/
-  PatternTests.java                 15 scénarios de vérification
+  PatternTests.java                 11 scénarios de vérification
 ```
 
 Les exemples se trouvent dans [Main.java](src/main/java/tn/insat/tp1/presentation/Main.java), et les assertions dans [PatternTests.java](src/test/java/tn/insat/tp1/PatternTests.java). Modifier la démonstration ne modifie pas les données des tests.
@@ -145,13 +147,15 @@ Un pattern résout un problème local. L'architecture organise les responsabilit
 
 ## Expérimenter
 
-- **Factory :** dans `Main.factory()`, changer un nom ou un prix. Un type inconnu ou un prix négatif est refusé.
+- **Factory :** dans `Main.factory()`, changer un nom ou un prix. Un type inconnu est refusé par la Factory.
 - **Singleton :** modifier `c1.setApplicationName("Ma boutique")`, puis lire `c2.getApplicationName()` : la valeur est partagée.
 - **Adapter :** remplacer `payment.pay(250)` par `payment.pay(100)` : la sortie devient `Payment : 100.0`.
 - **Composite :** ajouter une catégorie dans `books`, puis un produit dans cette catégorie : l'indentation augmente d'un niveau.
 - **Observer :** retirer l'abonnement de `LoggerService` : seules les lignes Email et Stock s'affichent.
 - **Strategy :** ne garder que `WhatsAppNotification` dans la liste des canaux : seul WhatsApp s'affiche.
 
-Après chaque modification, recompiler puis relancer la partie concernée. Les tests couvrent aussi les entrées invalides, les cycles du catalogue, le désabonnement d'un observateur et l'injection d'un nouveau canal.
+Après chaque modification, recompiler puis relancer la partie concernée. Les tests vérifient les quatre produits, le type inconnu, Food via `OrderService`, l'identité du Singleton, le paiement de 250, un catalogue imbriqué, les notifications, le désabonnement et l'injection d'un nouveau canal.
+
+Comme dans le compte rendu, `Order` utilise une `ArrayList` et chaque appel à `setStatus()` notifie les abonnés, même si la valeur est identique. `Category` propose `add()` et `display(String indent)`. Les contrôles supplémentaires sur les prix, les noms et les cycles ne font pas partie de ces exemples.
 
 Les paiements et notifications sont simulés par la console. La configuration ne démarre aucune base de données. Le Singleton garantit l'unicité de l'instance dans son chargeur de classes ; cette démonstration synchrone ne synchronise pas les setters ni les collections entre plusieurs threads.

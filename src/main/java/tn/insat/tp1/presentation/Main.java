@@ -51,8 +51,7 @@ public final class Main {
         System.out.println("\nPartie 3 - SINGLETON");
         ApplicationConfig c1 = ApplicationConfig.getInstance();
         ApplicationConfig c2 = ApplicationConfig.getInstance();
-        System.out.println("Same instance: " + (c1 == c2));
-        System.out.println("Application: " + c1.getApplicationName());
+        System.out.println(c1 == c2);
     }
 
     private static void adapter() {
@@ -72,7 +71,7 @@ public final class Main {
         electronics.add(new CatalogProduct("Smartphone"));
         catalogue.add(books);
         catalogue.add(electronics);
-        catalogue.display();
+        catalogue.display("");
     }
 
     private static void observer() {
@@ -81,7 +80,6 @@ public final class Main {
         order.attach(new EmailService());
         order.attach(new StockService());
         order.attach(new LoggerService());
-        System.out.println("Initial status: " + order.getStatus());
         order.setStatus("SHIPPED");
     }
 
